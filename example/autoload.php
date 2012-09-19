@@ -17,6 +17,8 @@ function autoload($className)
   }
 
   $fileName .= $className . '.php';
+
+  // set the path to our source directory, relative to the directory we are in
   $src = realpath('..' . DIRECTORY_SEPARATOR . 'src');
 
   require $src . DIRECTORY_SEPARATOR . $fileName;

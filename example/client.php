@@ -1,21 +1,19 @@
 <?php
 
   chdir(__DIR__);
-
-  error_reporting(E_ALL);
-  date_default_timezone_set('UTC');
-
-  ini_set('display_errors', '1');
-  ini_set('log_errors', '1');
-  ini_set('error_log', 'client-errors.log');
   ini_set('default_charset', 'UTF-8');
+  ini_set('display_errors', '1');
 
+  # autoload for the example directory
   require('autoload.php');
 
-  $url = getDemoUrl();
+  # get the url of the server script
+  $url = getServerUrl();
 
+  # create our client object, passing it the server url
   $Client = new JsonRpc\Client($url);
 
+  # set up our rpc call with a method and params
   $method = 'example';
 
   $param1 = 'Hello';
@@ -24,9 +22,14 @@
   $param2->name = 'Client';
 
   $res = $Client->call($method, array($param1, $param2));
-  //$res = $Client->notify($method, $params);
 
   /*
+  # notify
+  $res = $Client->notify($method, $params);
+  */
+
+  /*
+  # batch sending
   $Client->batchOpen();
   $Client->call($method, $params);
   $Client->notify($method, $params);
@@ -70,7 +73,7 @@
   echo '<b>output:</b> ', $Client->output;
 
 
-function getDemoUrl()
+function getServerUrl()
 {
 
   $path = dirname($_SERVER['PHP_SELF']) . '/server.php';

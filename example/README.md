@@ -1,3 +1,3 @@
 #Example
 
-Run `client.php` in your browser, which communicates with the `server.php` script in the same directory.
+Run `client.php` in your browser, which communicates with `server.php` in the same directory.
