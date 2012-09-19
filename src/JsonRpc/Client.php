@@ -35,7 +35,7 @@ class Client
 
     if (!$this->transport)
     {
-      $this->transport = new \JsonRpc\Transport\BasicClient();
+      $this->transport = new Transport\BasicClient();
     }
 
   }
@@ -81,9 +81,15 @@ class Client
   private function work($method, $params, $notify = false)
   {
 
+    if (!is_array($params))
+    {
+      throw new \Exception('Invalid params: ' . gettype($params));
+      return false;
+    }
+
     $ar = array(
       'method' => $method,
-      'params' => is_scalar($params) ? array($params) : $params,
+      'params' => $params,
       'id' => $notify ? 0 : ++ $this->id
     );
 

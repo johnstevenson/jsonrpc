@@ -26,7 +26,7 @@ class Server
 
     if (!$this->transport)
     {
-      $this->transport = new \JsonRpc\Transport\BasicServer();
+      $this->transport = new Transport\BasicServer();
     }
 
   }
