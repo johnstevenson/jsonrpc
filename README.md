@@ -11,7 +11,9 @@ Full details at [jsonrpc.org][json-spec]. You will need to read this to get an o
 To call a method on a remote server is as simple as:
 
     $Client = new JsonRpc\Client($url);
-    $result = $Client->call('method', array($param1, $param2));
+    $Client->call('method', array($param1, $param2));
+
+    // now do something with $Client->result
 
 And at the server end:
 
