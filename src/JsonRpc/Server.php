@@ -11,18 +11,25 @@ class Server
 
   private $handler;
   private $transport = null;
+  private $logger = null;
   private $requests = array();
   private $responses = array();
   private $error = null;
+  private $handlerError = null;
+  private $refClass = null;
 
 
-  public function __construct($handler, $transport = null)
+  public function __construct($methodHandler, $otherHandlers = array())
   {
 
     ini_set('display_errors', '0');
 
-    $this->handler = $handler;
-    $this->transport = $transport;
+    $this->handler = $methodHandler;
+
+    $other = (array) $otherHandlers;
+
+    $this->transport = !empty($other['transport']) ? $other['transport'] : null;
+    $this->logger = !empty($other['logger']) ? $other['logger'] : null;
 
     if (!$this->transport)
     {
@@ -43,9 +50,22 @@ class Server
     }
     catch (\Exception $e)
     {
+      $this->logException($e);
       exit;
     }
 
+  }
+
+
+  public function setTransport($transport)
+  {
+    $this->transport = $transport;
+  }
+
+
+  public function setLogger($logger)
+  {
+    $this->logger = $logger;
   }
 
 
@@ -54,8 +74,9 @@ class Server
 
     if (!$struct = Rpc::decode($json, $batch))
     {
+      $code = is_null($struct) ? Rpc::ERR_PARSE : Rpc::ERR_REQUEST;
       $data = new Response();
-      $data->createStdError(Rpc::ERR_PARSE);
+      $data->createStdError($code);
       return $data->toJson();
     }
 
@@ -95,6 +116,7 @@ class Server
     foreach ($this->requests as $request)
     {
 
+      # check if we got an error parsing the request, otherwise process it
       if ($request->fault)
       {
 
@@ -103,47 +125,19 @@ class Server
           'data' => $request->fault
         );
 
-      }
-      else
-      {
+        # we always response to request errors
+        $this->addResponse($request, null);
 
-        try
-        {
-          $result = $this->processRequest($request->method, $request->params);
-        }
-        catch (\Exception $e)
-        {
-          $this->error = Rpc::ERR_INTERNAL;
-        }
-
-      }
-
-      if ($request->notification)
-      {
         continue;
+
       }
 
-      $ar = array(
-        'id' => $request->id
-      );
+      $result = $this->processRequest($request->method, $request->params);
 
-      if ($this->error)
+      if (!$request->notification)
       {
-        $ar['error'] = $this->error;
+        $this->addResponse($request, $result);
       }
-      else
-      {
-        $ar['result'] = $result;
-      }
-
-      $response = new Response();
-
-      if (!$response->create($ar))
-      {
-        $response->createStdError(Rpc::ERR_INTERNAL, $request->id);
-      }
-
-      $this->responses[] = $response->toJson();
 
     }
 
@@ -154,35 +148,253 @@ class Server
   {
 
     $this->error = null;
+
+    if (!$callback = $this->getCallback($method))
+    {
+      $this->error = Rpc::ERR_METHOD;
+
+      return;
+    }
+
+    if (!$this->checkMethod($method, $params))
+    {
+      $this->error = Rpc::ERR_PARAMS;
+
+      return;
+    }
+
+    try
+    {
+      $result = call_user_func_array($callback, $params);
+    }
+    catch (\Exception $e)
+    {
+      $this->logException($e);
+      $this->error = Rpc::ERR_INTERNAL;
+
+      return;
+    }
+
+    if ($this->error = $this->getHandlerError())
+    {
+      $this->clearHandlerError();
+    }
+
+    return $result;
+
+  }
+
+
+  private function addResponse($request, $result)
+  {
+
+    $ar = array(
+      'id' => $request->id
+    );
+
+    if ($this->error)
+    {
+      $ar['error'] = $this->error;
+    }
+    else
+    {
+      $ar['result'] = $result;
+    }
+
+    $response = new Response();
+
+    if (!$response->create($ar))
+    {
+      $this->logError($response->fault);
+      $response->createStdError(Rpc::ERR_INTERNAL, $request->id);
+    }
+
+    $this->responses[] = $response->toJson();
+
+  }
+
+
+  private function getCallback($method)
+  {
+
     $callback = array($this->handler, $method);
 
     if (is_callable($callback))
     {
-
-      $ref = new \ReflectionMethod($this->handler, $method);
-
-      $reqArgs = $ref->getNumberOfRequiredParameters();
-
-      if ($reqArgs > count($params))
-      {
-        $this->error = Rpc::ERR_PARAMS;
-
-        return;
-      }
-
-      $result = call_user_func_array($callback, $params);
-
-      if (property_exists($this->handler, 'error') && $this->handler->error)
-      {
-        $this->error = $this->handler->error;
-        $this->handler->error = null;
-      }
-
-      return $result;
+      return $callback;
     }
-    else
+
+  }
+
+
+  private function checkMethod($method, &$params)
+  {
+
+    try
+    {
+
+      if (!$this->refClass)
+      {
+        # we have already checked that handler is callable
+        $this->refClass = new \ReflectionClass($this->handler);
+
+        try
+        {
+
+          $prop = $this->refClass->getProperty('error');
+
+          if ($prop->isPublic())
+          {
+            $this->handlerError = $prop;
+          }
+
+        }
+        catch (\Exception $e){}
+
+      }
+
+      $refMethod = $this->refClass->getMethod($method);
+
+      $res = true;
+
+      if (is_object($params))
+      {
+
+        $named = (array) $params;
+        $params = array();
+        $refParams = $refMethod->getParameters();
+
+        foreach ($refParams as $arg)
+        {
+
+          $argName = $arg->getName();
+
+          if (array_key_exists($argName, $named))
+          {
+            $params[] = $named[$argName];
+            unset($named[$argName]);
+          }
+          elseif (!$arg->isOptional())
+          {
+            $res = false;
+            break;
+          }
+
+        }
+
+        if ($extra = array_values($named))
+        {
+          $params = array_merge($params, $extra);
+        }
+
+      }
+      else
+      {
+        $params = $this->getParams($params);
+        $reqArgs = $refMethod->getNumberOfRequiredParameters();
+        $res = count($params) >= $reqArgs;
+      }
+
+      return $res;
+
+    }
+    catch (\Exception $e)
     {
       $this->error = Rpc::ERR_METHOD;
+    }
+
+  }
+
+
+  private function getParams($params)
+  {
+
+    if (is_object($params))
+    {
+      $params = array_values((array) $params);
+    }
+    elseif (is_null($params))
+    {
+      $params = array();
+    }
+
+    return $params;
+
+  }
+
+  private function getHandlerError()
+  {
+
+    if ($this->handlerError)
+    {
+
+      if ($this->handlerError->isStatic())
+      {
+        return $this->handlerError->getValue();
+      }
+      else
+      {
+        return $this->handlerError->getValue($this->handler);
+      }
+
+    }
+
+  }
+
+  private function clearHandlerError()
+  {
+
+    if ($this->handlerError)
+    {
+
+      if ($this->handlerError->isStatic())
+      {
+        return $this->handlerError->setValue(null);
+      }
+      else
+      {
+        return $this->handlerError->setValue($this->handler, null);
+      }
+
+    }
+
+  }
+
+  private function logException(\Exception $e)
+  {
+    $message = 'Exception: '. $e->getMessage();
+    $message .= ' in ' . $e->getFile() . ' on line ' . $e->getLine();
+    $this->logError($message);
+  }
+
+  private function logError($message)
+  {
+
+    try
+    {
+
+      if ($this->logger)
+      {
+
+        $callback = array($this->logger, 'addRecord');
+
+        $params = array(
+          500,
+          $msg
+        );
+
+        $result = call_user_func_array($callback, $params);
+
+      }
+      else
+      {
+        error_log($msg);
+      }
+
+    }
+    catch (\Exception $e)
+    {
+      error_log($msg);
     }
 
   }

@@ -7,9 +7,7 @@ class BasicServer
 
   public function receive()
   {
-
     return @file_get_contents('php://input');
-
   }
 
 

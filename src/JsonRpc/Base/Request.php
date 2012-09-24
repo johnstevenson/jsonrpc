@@ -11,7 +11,18 @@ class Request extends Rpc
 
   public function __construct($struct)
   {
-    $this->init($struct);
+
+    $ok = is_array($struct) || is_object($struct);
+
+    if ($ok)
+    {
+      $this->init($struct, is_array($struct));
+    }
+    else
+    {
+      $this->fault = $this->getErrorMsg('');
+    }
+
   }
 
 
@@ -21,18 +32,13 @@ class Request extends Rpc
     $ar['jsonrpc'] = $this->jsonrpc;
     $ar['method'] = $this->method;
 
-    if ($this->notification)
-    {
-
-      if ($this->params)
-      {
-        $ar['params'] = $this->params;
-      }
-
-    }
-    else
+    if ($this->params)
     {
       $ar['params'] = $this->params;
+    }
+
+    if (!$this->notification)
+    {
       $ar['id'] = $this->id;
     }
 
@@ -41,39 +47,30 @@ class Request extends Rpc
   }
 
 
-  private function init($struct)
+  private function init($struct, $new)
   {
 
     try
     {
 
-      if ($this->get($struct, 'jsonrpc', false))
-      {
-        $this->jsonrpc = $this->get($struct, 'jsonrpc');
-      }
-
-      $this->method = $this->get($struct, 'method');
-
-      if ($this->get($struct, 'params', false))
-      {
-
-        $params = $this->get($struct, 'params');
-
-        if (is_object($params))
-        {
-          $params = (array) $params;
-        }
-
-        $this->params = $params;
-
-      }
-
-      if ($this->get($struct, 'id', false))
+      if ($this->get($struct, 'id', static::MODE_EXISTS))
       {
         $this->id = $this->get($struct, 'id');
       }
+      else
+      {
+        $this->notification = true;
+      }
 
-      $this->notification = !$this->id;
+      #jsonrpc
+      $this->setVersion($struct, $new);
+
+      $this->method = $this->get($struct, 'method');
+
+      if ($this->get($struct, 'params', static::MODE_EXISTS))
+      {
+        $this->params = $this->get($struct, 'params');
+      }
 
       return true;
 

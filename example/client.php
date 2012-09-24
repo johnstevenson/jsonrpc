@@ -14,28 +14,42 @@
   $Client = new JsonRpc\Client($url);
 
   # set up our rpc call with a method and params
-  $method = 'example';
+  $method = 'divide';
+  $params1 = array(42, 6);
 
-  $param1 = 'Hello';
+  $params2 = new stdClass();
+  $params2->dividend = 42;
+  $params2->divisor = 6;
 
-  $param2 = new \stdClass();
-  $param2->name = 'Client';
+  $params3 = new stdClass();
+  $params3->divisor = 6;
+  $params3->dividend = 42;
 
-  $res = $Client->call($method, array($param1, $param2));
+  $params4 = new stdClass();
+  $params4->int = true;
+  $params4->dividend = 23;
+  $params4->divisor = 6;
+
+  //$param1 = 'Hello';
+
+  //$param2 = new \stdClass();
+  //$param2->name = 'Client';
+
+  $res = $Client->call($method, $params4);
 
   /*
   # notify
-  $res = $Client->notify($method, $params);
+  $res = $Client->notify($method);
   */
 
   /*
   # batch sending
   $Client->batchOpen();
-  $Client->call($method, $params);
-  $Client->notify($method, $params);
-  $Client->call($method, $params);
-  $Client->notify($method, $params);
-  $Client->call($method, $params);
+  $Client->call($method, array($param1, $param2));
+  $Client->notify($method, array($param1));
+  $Client->call($method, array($param1, $param2));
+  $Client->notify($method, array($param1, $param2));
+  $Client->call($method, $param2);
   $res = $Client->batchSend();
   */
 
@@ -59,14 +73,14 @@
     echo '<b>error:</b> ', print_r($Client->error, 1);
     echo '<br /><br />';
   }
-  elseif ($Client->result)
-  {
-    echo '<b>result:</b> ', print_r($Client->result, 1);
-    echo '<br /><br />';
-  }
   elseif ($Client->batch)
   {
     echo '<b>batch:</b> ', print_r($Client->batch, 1);
+    echo '<br /><br />';
+  }
+  else
+  {
+    echo '<b>result:</b> ', print_r($Client->result, 1);
     echo '<br /><br />';
   }
 

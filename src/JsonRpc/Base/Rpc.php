@@ -17,6 +17,10 @@ class Rpc
   const ERR_INTERNAL = -32603;
   const ERR_SERVER = -32000;
 
+  const MODE_CHECK = 0;
+  const MODE_GET = 1;
+  const MODE_EXISTS = 2;
+
 
   public static function decode($message, &$batch)
   {
@@ -27,6 +31,31 @@ class Rpc
     return $struct;
 
   }
+
+
+  public static function getErrorMsg($name, $exists = true)
+  {
+
+    if ($name)
+    {
+
+      if ($exists)
+      {
+        return 'Invalid value for: ' . $name;
+      }
+      else
+      {
+        return 'Missing member: ' . $name;
+      }
+
+    }
+    else
+    {
+      return 'Invalid structure';
+    }
+
+  }
+
 
 
   public function __get($name)
@@ -40,44 +69,48 @@ class Rpc
   }
 
 
-  protected function check($name, $value)
+  protected function check($name, $value, $exists)
   {
 
-    switch ($name)
+    $res = false;
+
+    if ($exists)
     {
 
-      case 'jsonrpc':
-        $res = $value === $this->jsonrpc;
-        break;
+      switch ($name)
+      {
 
-      case 'method':
-        $res = is_string($value) && $value;
-        break;
+        case 'jsonrpc':
+          $res = $value === $this->jsonrpc;
+          break;
 
-      case 'params':
-        $res = is_array($value) || is_object($value);
-        break;
+        case 'method':
+          $res = is_string($value) && $value;
+          break;
 
-      case 'id':
-        $res = $this->checkId($value);
-        break;
+        case 'params':
+          $res = $this->checkParams($value);
+          break;
 
-      case 'result':
-        $res = true;
-        break;
+        case 'id':
+          $res = $this->checkId($value);
+          break;
 
-      case 'error':
-        $res = $this->checkError($value);
-        break;
+        case 'result':
+          $res = true;
+          break;
 
-      default:
-        $res = false;
+        case 'error':
+          $res = $this->checkError($value);
+          break;
+
+      }
 
     }
 
     if (!$res)
     {
-      throw new \Exception('Invalid value for: ' . $name);
+      throw new \Exception($this->getErrorMsg($name, $exists));
     }
     else
     {
@@ -87,32 +120,34 @@ class Rpc
   }
 
 
-  protected function get($container, $key, $check = true)
+  protected function get($container, $key, $mode = 0)
   {
+
+    $exists = false;
+    $value = null;
 
     if (is_array($container))
     {
-      $value = isset($container[$key]) ? $container[$key] : null;
+      $exists = array_key_exists($key, $container);
+      $value = $exists  ? $container[$key] : null;
     }
-    else if (is_object($container))
+    elseif (is_object($container))
     {
-      $value = isset($container->$key) ? $container->$key : null;
+      $exists = property_exists($container, $key);
+      $value = $exists ? $container->$key : null;
     }
 
-    else
-    {
-      # set to unknown to trigger an error
-      $key = 'unknown';
-      $value = null;
-    }
-
-    if ($check)
-    {
-      return $this->check($key, $value);
-    }
-    else
+    if ($mode === static::MODE_GET)
     {
       return $value;
+    }
+    elseif ($mode === static::MODE_EXISTS)
+    {
+      return $exists;
+    }
+    else
+    {
+      return $this->check($key, $value, $exists);
     }
 
   }
@@ -128,7 +163,38 @@ class Rpc
 
     $code = isset($error['code']) ? $error['code'] : null;
     $message = isset($error['message']) ? $error['message'] : null;
+
+    $allowed = array(-32700, -32600, -32601, -32602, -32603);
+
+    if (!in_array($code, $allowed))
+    {
+
+      $max = -32000;
+      $min = -32099;
+
+      if ($code < $min && $code > $max)
+      {
+        return;
+      }
+
+    }
+
     return is_int($code) && $code && is_string($message);
+
+  }
+
+
+  private function checkParams($params)
+  {
+
+    if (is_array($params))
+    {
+      return array_values($params) === $params;
+    }
+    else
+    {
+      return is_object($params);
+    }
 
   }
 
@@ -136,20 +202,34 @@ class Rpc
   private function checkId($id)
   {
 
+    if ((is_string($id) && $id) || is_int($id))
+    {
+      return true;
+    }
+    elseif (!is_null($id))
+    {
+      return false;
+    }
+
     $allowNull = false;
 
     if (isset($this->error))
     {
-      $errorCode = $this->get($this->error, 'code', false);
-      $allowNull = $errorCode === static::ERR_PARSE;
+      $code = $this->get($this->error, 'code', static::MODE_GET);
+      $allowNull = $code === static::ERR_PARSE || $code === static::ERR_REQUEST;
     }
 
-    if (!$res = is_string($id) || is_int($id))
+    return $allowNull;
+
+  }
+
+  protected function setVersion($struct, $new)
+  {
+
+    if (!$new)
     {
-      $res = $allowNull && is_null($id);
+      $this->jsonrpc = $this->get($struct, 'jsonrpc');
     }
-
-    return $res;
 
   }
 

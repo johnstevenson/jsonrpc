@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<phpunit bootstrap="bootstrap.php" colors="true">
+  <testsuites>
+    <testsuite name="Request Tests">
+      <file>Request/RequestSpecTest.php</file>
+      <file>Request/RequestMethodTest.php</file>
+      <file>Request/RequestParamTest.php</file>
+      <file>Request/RequestIdTest.php</file>
+      <file>Request/NewRequestTest.php</file>
+    </testsuite>
+    <testsuite name="Response Tests">
+      <file>Response/ResponseGeneralTest.php</file>
+      <file>Response/ResponseSpecTest.php</file>
+      <file>Response/NewResponseTest.php</file>
+    </testsuite>
+    <testsuite name="Server Tests">
+      <file>Server/ServerErrorTest.php</file>
+      <file>Server/ServerInvalidRequestTest.php</file>
+      <file>Server/ServerRequestTest.php</file>
+    </testsuite>
+  </testsuites>
+</phpunit>

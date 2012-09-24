@@ -11,33 +11,15 @@ class Response extends Rpc
   public function create($struct)
   {
 
-    $this->reset();
+    $ok = is_array($struct) || is_object($struct);
 
-    try
+    if ($ok)
     {
-
-      if ($this->get($struct, 'jsonrpc', false))
-      {
-        $this->jsonrpc = $this->get($struct, 'jsonrpc');
-      }
-
-      if ($error = $this->get($struct, 'error', false))
-      {
-        $this->error = $this->getServerError($error);
-      }
-      else
-      {
-        $this->result = $this->get($struct, 'result');
-      }
-
-      $this->id = $this->get($struct, 'id');
-
-      return true;
-
+      return $this->init($struct, is_array($struct));
     }
-    catch (\Exception $e)
+    else
     {
-      $this->fault = $e->getMessage();
+      $this->fault = $this->getErrorMsg('');
     }
 
   }
@@ -45,11 +27,9 @@ class Response extends Rpc
 
   public function createStdError($code, $id = null)
   {
-
-    $this->reset();
+    $this->result = null;
     $this->error = $this->makeError($code);
     $this->id = $id;
-
   }
 
 
@@ -70,6 +50,41 @@ class Response extends Rpc
     $ar['id'] = $this->id;
 
     return json_encode($ar);
+
+  }
+
+
+  private function init($struct, $new)
+  {
+
+    try
+    {
+
+      #jsonrpc
+      $this->setVersion($struct, $new);
+
+      if ($error = $this->get($struct, 'error', static::MODE_GET))
+      {
+        $this->error = $this->getServerError($error);
+      }
+      elseif ($this->get($struct, 'result', static::MODE_EXISTS))
+      {
+        $this->result = $this->get($struct, 'result');
+      }
+      else
+      {
+        $this->fault = $this->getErrorMsg('result', false);
+      }
+
+      $this->id = $this->get($struct, 'id');
+
+      return true;
+
+    }
+    catch (\Exception $e)
+    {
+      $this->fault = $e->getMessage();
+    }
 
   }
 
@@ -102,7 +117,7 @@ class Response extends Rpc
 
       default:
         $code = static::ERR_SERVER;
-        $message = 'Server Error';
+        $message = 'Server error';
         break;
 
     }
@@ -120,46 +135,54 @@ class Response extends Rpc
 
     if (is_int($error))
     {
-      return $this->makeError($error);
-    }
-
-    $value = $this->makeError(static::ERR_SERVER);
-
-    if (is_scalar($error))
-    {
-      $value['data'] = $error;
+      $value = $this->makeError($error);
     }
     else
     {
 
-      if (!is_array($error))
+      $value = $this->makeError(static::ERR_SERVER);
+
+      if (is_scalar($error))
       {
-        $error = (array) $error;
+        $value['data'] = $error;
       }
-
-      $code = !empty($error['code']) ? $error['code'] : null;
-      $message = !empty($error['message']) ? $error['message'] : null;
-
-      $value['code'] = $code ?: $value['code'];
-      $value['message'] = $message ?: $value['message'];
-
-      if (!empty($error['data']))
+      else
       {
-        $value['data'] = $error['data'];
+
+        if (!is_array($error))
+        {
+          $error = (array) $error;
+        }
+
+        $code = !empty($error['code']) ? $error['code'] : null;
+        $message = !empty($error['message']) ? $error['message'] : null;
+
+        if ($code && $message)
+        {
+          $value['code'] = $code;
+          $value['message'] = $message;
+        }
+        elseif ($code)
+        {
+          $value = $this->makeError($code);
+        }
+        else
+        {
+          $value['code'] = $code ?: $value['code'];
+          $value['message'] = $message ?: $value['message'];
+        }
+
+        if (!empty($error['data']))
+        {
+          $value['data'] = $error['data'];
+        }
+
       }
 
     }
 
-    return $this->check('error', $value);
+    return $this->check('error', $value, true);
 
-  }
-
-
-  private function reset()
-  {
-    $this->id = null;
-    $this->result = null;
-    $this->error = null;
   }
 
 

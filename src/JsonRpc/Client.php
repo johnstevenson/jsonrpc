@@ -47,7 +47,7 @@ class Client
   }
 
 
-  public function notify($method, $params)
+  public function notify($method, $params = null)
   {
     ++ $this->notifications;
     return $this->work($method, $params, true);
@@ -71,9 +71,7 @@ class Client
       return false;
     }
 
-    $data = '[' . implode(',', $this->requests) . ']';
-
-    return $this->send($data);
+    return $this->send();
 
   }
 
@@ -81,19 +79,19 @@ class Client
   private function work($method, $params, $notify = false)
   {
 
-    if (!is_array($params))
+    $data = array('method' => $method);
+
+    if ($params)
     {
-      throw new \Exception('Invalid params: ' . gettype($params));
-      return false;
+      $data['params'] = $params;
     }
 
-    $ar = array(
-      'method' => $method,
-      'params' => $params,
-      'id' => $notify ? 0 : ++ $this->id
-    );
+    if ($notify)
+    {
+      $data['id'] = ++ $this->id;
+    }
 
-    $request = new Request($ar);
+    $request = new Request($data);
 
     if ($request->fault)
     {
@@ -101,22 +99,27 @@ class Client
       return false;
     }
 
-    $data = $request->toJson();
+    $this->requests[] = $request->toJson();
 
-    if ($this->multi)
+    if (!$this->multi)
     {
-      $this->requests[] = $data;
-    }
-    else
-    {
-      return $this->send($data);
+      return $this->send();
     }
 
   }
 
 
-  private function send($data)
+  private function send()
   {
+
+    if ($this->multi)
+    {
+      $data = '[' . implode(',', $this->requests) . ']';
+    }
+    else
+    {
+      $data = $this->requests[0];
+    }
 
     try
     {
@@ -168,7 +171,6 @@ class Client
       {
         return;
       }
-
 
 
       if ($this->multi)
