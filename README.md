@@ -1,11 +1,10 @@
 #Json-Rpc
 
-
 [![Build Status](https://secure.travis-ci.org/johnstevenson/json-rpc.png)](http://travis-ci.org/johnstevenson/json-rpc)
 
-##About
-
 A PHP implementation for JSON-RPC (v2). Contains client and server libraries to handle **call**, **notify** and **batch** requests.
+
+##About
 
 JSON-RPC  is a protocol that allows servers to talk to each other using json-encoded structures. It is described in its specification as:
 
