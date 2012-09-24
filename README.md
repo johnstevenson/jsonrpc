@@ -16,21 +16,28 @@ Full details at [jsonrpc.org][json-spec]. You may need to read this to get an ov
 
 To call a method on a remote server is as simple as:
 
-    $Client = new JsonRpc\Client($url);
-    $Client->call('method', array($param1, $param2));
+```php
+<?php
 
-    // now do something with $Client->result
+$Client = new JsonRpc\Client($url);
+$Client->call('method', array($param1, $param2));
+
+// now do something with $Client->result
+```
 
 And at the server end:
 
-    // MethodsClass contains the exposed methods
-    $methods = new MethodsClass();
+```php
+<?php
 
-    $Server = new JsonRpc\Server($methods);
-    $Server->receive();
+// MethodsClass contains the exposed methods
+$methods = new MethodsClass();
 
-    // and that's it, the library handles everything
+$Server = new JsonRpc\Server($methods);
+$Server->receive();
 
+// and that's it, the library handles everything
+```
 
 License
 -------
