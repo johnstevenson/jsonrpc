@@ -6,15 +6,14 @@
   # we don't want any PHP errors being output
   ini_set('display_errors', '0');
 
-  # so we will log them. Exception will be logged as well
+  # so we will log them. Exceptions will be logged as well
   ini_set('log_errors', '1');
   ini_set('error_log', 'server-errors.log');
 
-  # autoload for the example directory
-  require('autoload.php');
+  # bootstrap for the example directory
+  require('bootstrap.php');
 
   # set up our method handler class
-  require('ServerMethods.php');
   $methods = new ServerMethods();
 
   # create our server object, passing it the method handler class
@@ -22,3 +21,31 @@
 
   # and tell the server to do its stuff
   $Server->receive();
+
+
+
+/**
+* Our methods class
+*/
+class ServerMethods
+{
+
+  public $error = null;
+
+
+  public function divide($dividend, $divisor, $int = false)
+  {
+
+    if (!$divisor)
+    {
+      $this->error = 'Cannot divide by zero';
+    }
+    else
+    {
+      $quotient = $dividend / $divisor;
+      return $int ? (int) $quotient : $quotient;
+    }
+
+  }
+
+}

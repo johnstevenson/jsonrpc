@@ -50,6 +50,8 @@ Alternatively, you can [download][download] and extract it, or clone this repo.
 ## Usage
 If you downloaded the library through `composer` then everything is ready to run, otherwise you must point a `PSR-0` autoloader to the `src` directory so that the classes are automatically included.
 
+If you just want to have a quick play, point your browser to `example/client.php` and everything will run automatically.
+
 ## Client usage
 Firstly you need to instantiate a `JsonRpc\Client`. You do this by giving it the url you want to send your requests to:
 
@@ -64,7 +66,7 @@ Next you send your request by using the `$client->call` function. This takes the
 $success = $client->call('method', array($param1, $param2));
 ```
 
-The function returns true or false. If **true** then the result of the method will be in the `$client->result` property. The type of the result depends on what has been returned by the server, so it could be a scalar, an indexed array, an object `stdClass` or null.
+The function returns true or false. If **true** then the result of the method will be in the `$client->result` property. The type of the result depends on what has been returned by the server, so it could be a scalar, an indexed array, an object `stdClass`, or null.
 
 If **false** then an error has occured, either in sending or processing the request. This is reported in the `$client->error` property, which is a string. Putting it all together:
 
