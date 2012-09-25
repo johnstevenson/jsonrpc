@@ -7,6 +7,9 @@
     <testsuite name="Response Tests">
       <directory>ResponseTests</directory>
     </testsuite>
+    <testsuite name="Client Tests">
+      <directory>ClientTests</directory>
+    </testsuite>
     <testsuite name="Server Tests">
       <directory>ServerTests</directory>
     </testsuite>
