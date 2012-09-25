@@ -2,7 +2,7 @@
 
 [![Build Status](https://secure.travis-ci.org/johnstevenson/json-rpc.png)](http://travis-ci.org/johnstevenson/json-rpc)
 
-A PHP implementation for JSON-RPC (v2). Contains client and server libraries to handle all requests including **notify** and **batch** requests.
+A PHP implementation for JSON-RPC (v2). Contains client and server libraries to handle requests including **notification** and **batch**.
 
 About
 -----
@@ -46,12 +46,18 @@ The easiest way is [through composer][composer]. Just create a `composer.json` f
 Alternatively, you can [download][download] and extract it, or clone this repo.
 
 ## Usage
-If you downloaded the library through `composer` then everything is ready to run, otherwise you must point a `PSR-0` autoloader to the `src` directory so that the classes are automatically included.
+If you downloaded the library through [composer][composer] then you must add
+
+```php
+<?php
+ require 'vendor/autoload.php';
+```
+somewhere in your bootstrap code, otherwise you must point a PSR-0 autoloader to the `src` directory so that the classes are automatically included.
 
 If you just want to have a quick play, point your browser to `example/client.php` and everything will run automatically.
 
 ## Client usage
-This library provides a very easy way to make Json-Rpc request calls, including **notify** and **batch** requests. For all cases you first need to instantiate a `JsonRpc\Client`. You do this by giving it the url you want to send your requests to:
+This library provides a very easy way to make Json-Rpc request calls, including **notification** and **batch** requests. For all cases you first need to instantiate a `JsonRpc\Client`, which you do by giving it the url you want to send your requests to:
 
 ```php
 <?php
@@ -83,6 +89,9 @@ else
   error_log($client->error);
 }
 ```
+If you just want a client to send simple requests, then there is no need to read any further. However the next sections explain notification and batch requests.
+
+---
 
 ### Notification requests
 A notification is a call to the server which does not require a response. You send one by using the `$client->notify` function, which takes the same arguments as the `$client->call` function described above:
@@ -123,28 +132,30 @@ Array
 (
     [0] => stdClass Object
         (
-            [jsonrpc] => 2.0
-            [result] => 7
-            [id] => 1
+          [jsonrpc] => 2.0
+          [result] => 7
+          [id] => 1
         )
 
     [1] => stdClass Object
         (
-            [jsonrpc] => 2.0
-            [error] => stdClass Object
-                (
-                    [code] => -32601
-                    [message] => Method not found
-                )
-
-            [id] => 2
+          [jsonrpc] => 2.0
+          [error] => stdClass Object
+            (
+              [code] => -32601
+              [message] => Method not found
+            )
+          [id] => 2
         )
-
 )
 ```
 Note that there is no response to our notify call, because one is not returned, and that each response is assigned an `id` property, which is allocated with each `$client->call` ascending from `1`. The responses returned in the `$client->batch` array are similarly ordered (even though they may have been received out of sequence). Notifications do not have an `id`.
 
-The [official specification][json-spec] is worth reading if you want to use batch requests. Also the example included here at `example/client.php` is worth experimenting with.
+It is worth reading [the official specification][json-spec] if you want to make batch requests. Also the example included here at `example/client.php` is useful to experiment with.
+
+If you have got this far, then you probably want to know how to set up your server to receive all the Json-Rpc requests you have just learned about. The next section covers this.
+
+---
 
 ## Server usage
 

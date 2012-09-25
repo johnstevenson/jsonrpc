@@ -314,8 +314,33 @@ class Client
     }
     else
     {
-      return $this->orderResponses($struct);
+      return $batch ? $this->checkBatch($struct, $expected) : true;
     }
+
+  }
+
+
+  private function checkBatch(&$struct, $expected)
+  {
+
+    if ($res = $this->orderResponses($struct))
+    {
+
+      for ($i = 0; $i < $expected; ++ $i)
+      {
+
+        if ($struct[$i]->id !== $i + 1)
+        {
+          $this->setError('Duplicate response id');
+          $res = false;
+          break;
+        }
+
+      }
+
+    }
+
+    return $res;
 
   }
 
@@ -353,6 +378,14 @@ class Client
     return ($a->id < $b->id) ? -1 : 1;
 
   }
+
+
+  private function checkIds()
+  {
+
+
+  }
+
 
   private function setError($error)
   {
