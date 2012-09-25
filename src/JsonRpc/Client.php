@@ -9,11 +9,48 @@ use JsonRpc\Base\Response;
 class Client
 {
 
+  /**
+  * The result returned by the server for rpc calls. Will be
+  * null if there is an error, for notifications and batches
+  *
+  * @var mixed
+  */
   public $result = null;
-  public $error = null;
+
+  /**
+  * An array of std objects representing the result or
+  * error of batch calls. Will be null for non-batch calls
+  * or for batch calls containing only notifications
+  *
+  * @var Array
+  */
   public $batch = null;
 
-  public $fault = '';
+  /**
+  * A formatted string of the error:
+  *   message (code): [data]
+  *
+  * This is constructed from either the Json-Rpc error object
+  * returned by the server, internally for response or connection errors
+  *
+  * @var String
+  */
+  public $error = '';
+
+  /**
+  * The error code, either 0 for errors detected in the response
+  * from the server or a failed connection, or any of the Json-Rpc
+  * errors defined in the specification
+  *
+  * @var Integer
+  */
+  public $errorCode = 0;
+
+  /**
+  * The raw string output returned by the server.
+  *
+  * @var string
+  */
   public $output = '';
 
   private $url;
@@ -24,7 +61,7 @@ class Client
   private $notifications = 0;
 
 
-  const ERR_RPC_RESPONSE = 'BadRpcResponse';
+  const ERR_RPC_RESPONSE = 'Invalid Response';
 
 
   public function __construct($url, $transport = null)
@@ -62,7 +99,7 @@ class Client
 
   public function batchOpen()
   {
-    $this->reset();
+    $this->resetInput();
     $this->multi = true;
   }
 
@@ -72,7 +109,7 @@ class Client
 
     if (count($this->requests) === 1)
     {
-      $this->reset();
+      $this->resetInput();
       throw new \Exception('Batch only has one request');
       return false;
     }
@@ -118,6 +155,8 @@ class Client
   private function send()
   {
 
+    $this->resetOutput();
+
     if ($this->multi)
     {
       $data = '[' . implode(',', $this->requests) . ']';
@@ -137,17 +176,17 @@ class Client
       }
       else
       {
-        $this->fault = $this->transport->error;
+        $this->setError($this->transport->error);
       }
 
-      $this->reset();
+      $this->resetInput();
 
       return $res;
 
     }
     catch (\Exception $e)
     {
-      $this->fault = $e->getMessage();
+      $this->setError($e->getMessage());
     }
 
   }
@@ -156,7 +195,7 @@ class Client
   private function checkResult()
   {
 
-    $sent = $this->requests ? count($this->requests) : 1;
+    $sent = count($this->requests);
     $expected = $sent - $this->notifications;
 
     if (!$struct = Rpc::decode($this->output, $batch))
@@ -164,7 +203,7 @@ class Client
 
       if ($expected)
       {
-        $this->fault = static::ERR_RPC_RESPONSE . ': ' .  ' parsing error';
+        $this->setError('Parse error');
       }
 
       return !$expected;
@@ -188,7 +227,8 @@ class Client
 
         if (isset($struct->error))
         {
-          $this->error = $struct->error;
+          $this->setError($struct->error);
+          $res = false;
         }
         else
         {
@@ -240,7 +280,7 @@ class Client
 
     if (!$res = $response->create($json_array))
     {
-      $this->fault = static::ERR_RPC_RESPONSE . ': ' . $response->fault;
+      $this->setError($response->fault);
     }
 
     return $res;
@@ -267,7 +307,7 @@ class Client
         $error = 'Mismatched response';
       }
 
-      $this->fault = static::ERR_RPC_RESPONSE . ': ' .  $error;
+      $this->setError($error);
       return false;
 
     }
@@ -279,16 +319,45 @@ class Client
   }
 
 
-  private function reset()
+  private function setError($error)
   {
 
+    if (is_string($error))
+    {
+      $code = 0;
+      $message = static::ERR_RPC_RESPONSE;
+      $data = $error;
+    }
+    else
+    {
+      $code = $error->code;
+      $message = $error->message;
+      $data = $error->data;
+    }
+
+    $data = $data ? ': ' . $data : '';
+
+    $this->error = $message . " ({$code})" . $data;
+    $this->errorCode = $code;
+
+  }
+
+  private function resetInput()
+  {
     $this->id = 0;
     $this->requests = array();
     $this->multi = false;
     $this->notifications = 0;
-
   }
 
+  private function resetOutput()
+  {
+    $this->result = null;
+    $this->batch = null;
+    $this->error = '';
+    $this->errorCode = 0;
+    $this->output = '';
+  }
 
 }
 

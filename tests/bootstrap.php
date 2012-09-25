@@ -4,7 +4,6 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL ^ E_NOTICE);
 
 require('helpers.php');
-require('methods.php');
 
 
 spl_autoload_register('autoload');

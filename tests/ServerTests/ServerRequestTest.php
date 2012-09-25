@@ -186,4 +186,36 @@ class ServerRequestTest extends ServerTests\Base
     $this->assertEquals($expects, $json);
   }
 
+
+  /**
+  * Checks that a raw function cannot be passed as a method hander
+  *
+  */
+  public function testInvalidRawFunction()
+  {
+    $this->methods = 'divide';
+    parent::setUp();
+
+    $data = '{"jsonrpc": "2.0", "method": "divide", "params": [42, 6], "id": 1}';
+    $expects = '{"jsonrpc": "2.0", "error": {"code": -32601, "message": "Method not found"}, "id": 1}';
+    $json = $this->getResponseJson($data, $expects);
+    $this->assertEquals($expects, $json);
+  }
+
+
+  /**
+  * Checks that a closure cannot be passed as a method hander
+  *
+  */
+  public function testInvalidClosure()
+  {
+    $this->methods = methodsJsonRpcClosure();
+    parent::setUp();
+
+    $data = '{"jsonrpc": "2.0", "method": "divide", "params": [42, 6], "id": 1}';
+    $expects = '{"jsonrpc": "2.0", "error": {"code": -32601, "message": "Method not found"}, "id": 1}';
+    $json = $this->getResponseJson($data, $expects);
+    $this->assertEquals($expects, $json);
+  }
+
 }

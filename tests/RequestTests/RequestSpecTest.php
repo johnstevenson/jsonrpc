@@ -45,17 +45,9 @@ class RequestSpecTest extends RequestTests\Base
     $this->assertEquals($expects, $fault);
   }
 
-  public function testInvalidRequestSpecWithInteger()
+  public function testInvalidRequestSpecWithNumber()
   {
     $data = '{"jsonrpc": 2, "method": "foobar", "params": [6], "id": 1}';
-    $expects = Rpc::getErrorMsg('jsonrpc');
-    $fault = $this->getRequestFault($data);
-    $this->assertEquals($expects, $fault);
-  }
-
-  public function testInvalidRequestSpecWithFloat()
-  {
-    $data = '{"jsonrpc": 2.0, "method": "foobar", "params": [6], "id": 1}';
     $expects = Rpc::getErrorMsg('jsonrpc');
     $fault = $this->getRequestFault($data);
     $this->assertEquals($expects, $fault);

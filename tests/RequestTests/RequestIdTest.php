@@ -21,7 +21,7 @@ class RequestIdTest extends RequestTests\Base
     $this->assertEquals($expects, $fault);
   }
 
-  public function testValidRequestIdWithIntegerZero()
+  public function testValidRequestIdWithNumberZero()
   {
     $data = '{"jsonrpc": "2.0", "method": "foobar", "params": [6], "id": 0}';
     $expects = '';
@@ -45,7 +45,7 @@ class RequestIdTest extends RequestTests\Base
     $this->assertEquals($expects, $fault);
   }
 
-  public function testInvalidRequestIdWithFloat()
+  public function testInvalidRequestIdWithFractional()
   {
     $data = '{"jsonrpc": "2.0", "method": "foobar", "params": [6], "id": 1.24}';
     $expects = Rpc::getErrorMsg('id');

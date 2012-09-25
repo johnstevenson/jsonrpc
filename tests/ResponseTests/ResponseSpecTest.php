@@ -45,17 +45,9 @@ class ResponseSpecTest extends ResponseTests\Base
     $this->assertEquals($expects, $fault);
   }
 
-  public function testInvalidResponseSpecWithInteger()
+  public function testInvalidResponseSpecWithNumber()
   {
     $data = '{"jsonrpc": 2, "result": 6, "id": 1}';
-    $expects = Rpc::getErrorMsg('jsonrpc');
-    $fault = $this->getResponseFault($data);
-    $this->assertEquals($expects, $fault);
-  }
-
-  public function testInvalidResponseSpecWithFloat()
-  {
-    $data = '{"jsonrpc": 2.0, "result": 6, "id": 1}';
     $expects = Rpc::getErrorMsg('jsonrpc');
     $fault = $this->getResponseFault($data);
     $this->assertEquals($expects, $fault);

@@ -29,7 +29,7 @@ class ResponseGeneralTest extends ResponseTests\Base
     $this->assertEquals($expects, $fault);
   }
 
-  public function testValidResponseIdWithIntegerZero()
+  public function testValidResponseIdWithNumberZero()
   {
     $data = '{"jsonrpc": "2.0", "result": 6, "id": 0}';
     $expects = '';
@@ -77,7 +77,7 @@ class ResponseGeneralTest extends ResponseTests\Base
     $this->assertEquals($expects, $fault);
   }
 
-  public function testInvalidResponseResultWithIdFloat()
+  public function testInvalidResponseResultWithIdFractional()
   {
     $data = '{"jsonrpc": "2.0", "result": 6, "id": 1.24}';
     $expects = Rpc::getErrorMsg('id');

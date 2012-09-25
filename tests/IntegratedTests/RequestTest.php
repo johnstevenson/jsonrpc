@@ -9,8 +9,10 @@ class RequestTest extends IntegratedTests\Base
     $params = array(42, 6);
 
     $expects = 7;
-    $this->client->call($method, $params);
+    $this->assertTrue($this->client->call($method, $params));
     $this->assertEquals($expects, $this->client->result);
+    $this->assertNull($this->client->batch);
+    $this->assertEquals('', $this->client->error);
   }
 
   public function testDivideNamed()
@@ -30,11 +32,11 @@ class RequestTest extends IntegratedTests\Base
     $method = 'divide';
     $params = array(42, 0);
 
-    $this->client->call($method, $params);
-    $error = $this->client->error;
-    $this->assertEquals(-32000, $error->code);
-    $this->assertEquals('Server error', $error->message);
-    $this->assertEquals(TEST_DIVIDE_ERROR, $error->data);
+    $this->assertFalse($this->client->call($method, $params));
+
+    $this->assertEquals(-32000, $this->client->errorCode);
+    $error = 'Server error (-32000): ' . TEST_DIVIDE_ERROR;
+    $this->assertEquals($error, $this->client->error);
   }
 
   public function testPing()
@@ -69,21 +71,66 @@ class RequestTest extends IntegratedTests\Base
   public function testBatch()
   {
     $method = 'divide';
-    $params = array(42, 6);
+
+    $this->client->batchOpen();
+    $this->client->call($method, array(42, 6));
+    $this->client->notify($method, array(42));
+    $this->client->call($method, array(42, 8, true));
+    $this->assertTrue($this->client->batchSend());
+
+    $json = '[
+      {"jsonrpc": "2.0", "result": 7, "id": 1},
+      {"jsonrpc": "2.0", "result": 5, "id": 2}
+    ]';
+
+    $expects = Helpers::fmt($json);
+    $this->assertEquals($expects, Helpers::fmt($this->client->output));
+
+    $this->assertEquals(7, $this->client->batch[0]->result);
+    $this->assertEquals(5, $this->client->batch[1]->result);
+
+    $this->assertNull($this->client->result);
+    $this->assertEquals('', $this->client->error);
+  }
+
+  public function testBatchErrors()
+  {
+    $method = 'divide';
+    $params = array(42, 0);
 
     $this->client->batchOpen();
     $this->client->call($method, $params);
-    $this->client->notify($method, $params);
+    $this->client->notify($method, array(42));
     $this->client->call($method, $params);
-    $this->client->batchSend();
+    $this->assertTrue($this->client->batchSend());
 
+    $json = '[
+      {"jsonrpc":"2.0","error":{"code":-32000,"message":"Server error","data":"Cannot divide by zero"},"id":1},
+      {"jsonrpc":"2.0","error":{"code":-32000,"message":"Server error","data":"Cannot divide by zero"},"id":2}
+    ]';
 
+    $expects = Helpers::fmt($json);
+    $this->assertEquals($expects, Helpers::fmt($this->client->output));
 
-
+    $this->assertNull($this->client->result);
+    $this->assertEquals('', $this->client->error);
   }
 
 
+  public function testBatchNotify()
+  {
+    $method = 'divide';
+    $params = array(42, 0);
 
+    $this->client->batchOpen();
+    $this->client->notify($method, $params);
+    $this->client->notify($method, array(42));
+    $this->assertTrue($this->client->batchSend());
+    $this->assertEquals('', $this->client->output);
+    $this->assertNull($this->client->batch);
+    $this->assertNull($this->client->result);
+    $this->assertEquals('', $this->client->error);
+  }
 
 }
 

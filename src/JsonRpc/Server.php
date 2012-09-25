@@ -42,6 +42,8 @@ class Server
   public function receive()
   {
 
+    $this->init();
+
     try
     {
       $input = $this->transport->receive();
@@ -403,6 +405,15 @@ class Server
       error_log($msg);
     }
 
+  }
+
+  private function init()
+  {
+    $this->requests = array();
+    $this->responses = array();
+    $this->error = null;
+    $this->handlerError = null;
+    $this->refClass = null;
   }
 
 
