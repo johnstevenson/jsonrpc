@@ -2,7 +2,7 @@
 
 [![Build Status](https://secure.travis-ci.org/johnstevenson/json-rpc.png)](http://travis-ci.org/johnstevenson/json-rpc)
 
-A PHP implementation for JSON-RPC (v2). Contains client and server libraries to handle **call**, **notify** and **batch** requests.
+A PHP implementation for JSON-RPC (v2). Contains client and server libraries to handle all requests including **notify** and **batch** requests.
 
 About
 -----
@@ -51,13 +51,15 @@ If you downloaded the library through `composer` then everything is ready to run
 If you just want to have a quick play, point your browser to `example/client.php` and everything will run automatically.
 
 ## Client usage
-Firstly you need to instantiate a `JsonRpc\Client`. You do this by giving it the url you want to send your requests to:
+This library provides a very easy way to make Json-Rpc request calls, including **notify** and **batch** requests. For all cases you first need to instantiate a `JsonRpc\Client`. You do this by giving it the url you want to send your requests to:
 
 ```php
 <?php
 $client = new JsonRpc\Client($url);
 ```
-Next you send your request by using the `$client->call` function. This takes the name of the method you want to invoke on the server and its parameters, if it requires any. The only tricky bit here is remembering to put the parameters into an array, similar to PHP's `call_user_func_array` function.
+### Requests
+
+You send a request by using the `$client->call` function. This takes the name of the method you want to invoke on the server and its parameters, if it requires any. The only tricky bit here is remembering to put the parameters into an array, similar to PHP's `call_user_func_array` function.
 
 ```php
 <?php
@@ -92,10 +94,14 @@ $success = $client->notify('method', array($param));
 
 The function returns either **true**, meaning that the request was sent and received, or **false**, indicating that there was an error *sending* the request which will be reported in the `$client->error` property.
 
-Note that there is no way of knowing if the server encountered an error while processing your request, because, for example, the method does not exists or because you supplied the wrong parameters. Such is the nature of notifications.
+Note that there is no way of knowing if the server encountered an error while processing your request, for example if you supplied the wrong parameters. Such is the nature of notifications.
 
 ### Batch requests
-A batch request is one which sends several requests at the same time. These may be a mixture of standard requests and notifications. You start a batch operation by calling the `$client->batchOpen` function, then populate the batch by making `$client->call` and `$client->notify` calls. When you are done you send the batch with the `$client->batchSend` function.
+A batch request is one which sends several requests at the same time, including notifications:
+
+* call the `$client->batchOpen` function to start a batch operation
+* populate the batch by making `$client->call` and `$client->notify` calls
+* send the batch with the `$client->batchSend` function.
 
 ```php
 <?php
@@ -136,7 +142,7 @@ Array
 
 )
 ```
-Note that there is no response to our notify call, because one is not returned, and that each response is assigned an `id` property, which is allocated with each `$client->call` ascending from `1`. The responses returned in the `$client->batch` array are similarly ordered (even though they can be returned out of sequence). Notifications do not have an `id`.
+Note that there is no response to our notify call, because one is not returned, and that each response is assigned an `id` property, which is allocated with each `$client->call` ascending from `1`. The responses returned in the `$client->batch` array are similarly ordered (even though they may have been received out of sequence). Notifications do not have an `id`.
 
 The [official specification][json-spec] is worth reading if you want to use batch requests. Also the example included here at `example/client.php` is worth experimenting with.
 
