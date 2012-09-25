@@ -101,14 +101,44 @@ A batch request is one which sends several requests at the same time. These may 
 <?php
 $client->batchOpen();
 
-$client->call('method1', array($param1, $param2));
+$client->call('divide', array(42, 6));
 $client->call('method2', array($param1, $param2));
-$client->notify('method', array($param);
+$client->notify('update', array($param);
   ...
 $success = $client->batchSend();
 ```
 
 The function returns either **true**, meaning that the batch has been processed, or **false**, indicating that there was an error *sending* the batch request which will be reported in the `$client->error` property.
+
+You have to do a bit more work to process the response from a batch operation, which will be in the `$client->batch` property. This is an indexed array of all the responses from the server, each being a `stdClass` object representing a result or an error. Using the example above and assuming that *method2* was not found on the server, this is what `$client->batch` looks like:
+
+```
+Array
+(
+    [0] => stdClass Object
+        (
+            [jsonrpc] => 2.0
+            [result] => 7
+            [id] => 1
+        )
+
+    [1] => stdClass Object
+        (
+            [jsonrpc] => 2.0
+            [error] => stdClass Object
+                (
+                    [code] => -32601
+                    [message] => Method not found
+                )
+
+            [id] => 2
+        )
+
+)
+```
+Note that there is no response to our notify call, because one is not returned, and that each response is assigned an `id` property, which is allocated with each `$client->call` ascending from `1`. The responses returned in the `$client->batch` array are similarly ordered (even though they can be returned out of sequence). Notifications do not have an `id`.
+
+The [official specification][json-spec] is worth reading if you want to use batch requests. Also the example included here at `example/client.php` is worth experimenting with.
 
 ## Server usage
 
