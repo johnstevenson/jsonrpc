@@ -15,7 +15,6 @@ Full details at [jsonrpc.org][json-spec]. You may need to read this to get an ov
 
 ```php
 <?php
-
 $client = new JsonRpc\Client($url);
 $client->call('method', array($param1, $param2));
 
@@ -26,7 +25,6 @@ And at the server end:
 
 ```php
 <?php
-
 // MethodsClass contains the exposed methods
 $methods = new MethodsClass();
 
@@ -59,7 +57,7 @@ Firstly you need to instantiate a `JsonRpc\Client`. You do this by giving it the
 <?php
 $client = new JsonRpc\Client($url);
 ```
-Next you send your request by using the `$client->call` function. This takes the name of the method you want to invoke on the server and its parameters. The only tricky bit here is remembering to put the parameters into an array, similar to the native `call_user_func`.
+Next you send your request by using the `$client->call` function. This takes the name of the method you want to invoke on the server and its parameters, if it requires any. The only tricky bit here is remembering to put the parameters into an array, similar to PHP's `call_user_func_array` function.
 
 ```php
 <?php
@@ -72,7 +70,6 @@ If **false** then an error has occured, either in sending or processing the requ
 
 ```php
 <?php
-
 $client = new JsonRpc\Client($url);
 
 if ($client->call('method', array($param1, $param2)))
@@ -84,6 +81,34 @@ else
   error_log($client->error);
 }
 ```
+
+### Notification requests
+A notification is a call to the server which does not require a response. You send one by using the `$client->notify` function, which takes the same arguments as the `$client->call` function described above:
+
+```php
+<?php
+$success = $client->notify('method', array($param));
+```
+
+The function returns either **true**, meaning that the request was sent and received, or **false**, indicating that there was an error *sending* the request which will be reported in the `$client->error` property.
+
+Note that there is no way of knowing if the server encountered an error while processing your request, because, for example, the method does not exists or because you supplied the wrong parameters. Such is the nature of notifications.
+
+### Batch requests
+A batch request is one which sends several requests at the same time. These may be a mixture of standard requests and notifications. You start a batch operation by calling the `$client->batchOpen` function, then populate the batch by making `$client->call` and `$client->notify` calls. When you are done you send the batch with the `$client->batchSend` function.
+
+```php
+<?php
+$client->batchOpen();
+
+$client->call('method1', array($param1, $param2));
+$client->call('method2', array($param1, $param2));
+$client->notify('method', array($param);
+  ...
+$success = $client->batchSend();
+```
+
+The function returns either **true**, meaning that the batch has been processed, or **false**, indicating that there was an error *sending* the batch request which will be reported in the `$client->error` property.
 
 ## Server usage
 
