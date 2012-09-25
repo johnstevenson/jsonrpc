@@ -39,14 +39,14 @@ class Server
   }
 
 
-  public function receive()
+  public function receive($input = '')
   {
 
     $this->init();
 
     try
     {
-      $input = $this->transport->receive();
+      $input = $input ?: $this->transport->receive();
       $json = $this->process($input);
       $this->transport->reply($json);
     }

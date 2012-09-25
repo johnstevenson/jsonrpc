@@ -57,6 +57,8 @@ class Response extends Rpc
   private function init($struct, $new)
   {
 
+    $req = 0;
+
     try
     {
 
@@ -66,14 +68,19 @@ class Response extends Rpc
       if ($error = $this->get($struct, 'error', static::MODE_GET))
       {
         $this->error = $this->getServerError($error);
+        ++ $req;
       }
-      elseif ($this->get($struct, 'result', static::MODE_EXISTS))
+
+      if ($this->get($struct, 'result', static::MODE_EXISTS))
       {
         $this->result = $this->get($struct, 'result');
+        ++ $req;
       }
-      else
+
+      if ($req !== 1)
       {
-        $this->fault = $this->getErrorMsg('result', false);
+        $this->fault = $this->getErrorMsg('');
+        return;
       }
 
       $this->id = $this->get($struct, 'id');

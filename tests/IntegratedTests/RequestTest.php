@@ -63,8 +63,11 @@ class RequestTest extends IntegratedTests\Base
     $params = array(42, 6);
 
     $expects = '';
-    $this->client->notify($method, $params);
+    $this->assertTrue($this->client->notify($method, $params));
     $this->assertEquals($expects, $this->client->output);
+    $this->assertNull($this->client->result);
+    $this->assertNull($this->client->batch);
+    $this->assertEquals('', $this->client->error);
 
   }
 

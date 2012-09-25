@@ -21,8 +21,8 @@ class Base extends \PHPUnit_Framework_TestCase
   {
     $struct = is_string($data) ? json_decode($data) : $data;
     $response = new Response($struct);
-    $response->create($struct);
-    return $response->fault;
+    $result = $response->create($struct);
+    return $result ? '' : $response->fault;
   }
 
   protected function getResponse($struct)

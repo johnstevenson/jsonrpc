@@ -53,10 +53,18 @@ class ResponseGeneralTest extends ResponseTests\Base
     $this->assertEquals($expects, $fault);
   }
 
+  public function testInvalidResponseResultAndError()
+  {
+    $data = '{"jsonrpc": "2.0", "result": 6, "error": {"code": -32601, "message": "Method not found"}, "id": null}';
+    $expects = Rpc::getErrorMsg('');
+    $fault = $this->getResponseFault($data);
+    $this->assertEquals($expects, $fault);
+  }
+
   public function testInvalidResponseResultAndErrorMissing()
   {
     $data = '{"jsonrpc": "2.0", "id": 1}';
-    $expects = Rpc::getErrorMsg('result', false);
+    $expects = Rpc::getErrorMsg('');
     $fault = $this->getResponseFault($data);
     $this->assertEquals($expects, $fault);
   }

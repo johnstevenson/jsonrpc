@@ -181,12 +181,13 @@ class Client
 
       $this->resetInput();
 
-      return $res;
+      return (bool) $res;
 
     }
     catch (\Exception $e)
     {
       $this->setError($e->getMessage());
+      return false;
     }
 
   }
@@ -288,7 +289,7 @@ class Client
   }
 
 
-  private function checkReceived($struct, $batch, $expected)
+  private function checkReceived(&$struct, $batch, $expected)
   {
 
     $received = $batch ? count($struct) : 1;
@@ -304,7 +305,7 @@ class Client
       }
       else
       {
-        $error = 'Mismatched response';
+        $error = 'Mismatched responses';
       }
 
       $this->setError($error);
@@ -313,11 +314,45 @@ class Client
     }
     else
     {
-      return true;
+      return $this->orderResponses($struct);
     }
 
   }
 
+
+  private function orderResponses(&$struct)
+  {
+
+    if (is_array($struct))
+    {
+
+      try
+      {
+        usort($struct, array($this, 'order'));
+      }
+      catch (\Exception $e)
+      {
+        $this->setError($e->getMessage());
+        return false;
+      }
+
+    }
+
+    return true;
+
+  }
+
+  private function order($a, $b)
+  {
+
+    if ($a->id == $b->id)
+    {
+      throw new \Exception('Duplicate response ids');
+    }
+
+    return ($a->id < $b->id) ? -1 : 1;
+
+  }
 
   private function setError($error)
   {
