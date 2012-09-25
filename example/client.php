@@ -46,22 +46,14 @@
   echo $success ? 'true' : 'false';
   echo '<br /><br />';
 
-  if (!$success)
-  {
-    echo '<b>error:</b> ', $Client->error;
-    echo '<br /><br />';
-  }
+  echo '<b>result:</b> ', print_r($Client->result, 1);
+  echo '<br /><br />';
 
-  if ($Client->batch)
-  {
-    echo '<b>batch:</b> ', print_r($Client->batch, 1);
-    echo '<br /><br />';
-  }
-  elseif ($Client->result)
-  {
-    echo '<b>result:</b> ', print_r($Client->result, 1);
-    echo '<br /><br />';
-  }
+  echo '<b>batch:</b> ', print_r($Client->batch, 1);
+  echo '<br /><br />';
+
+  echo '<b>error:</b> ', $Client->error;
+  echo '<br /><br />';
 
   echo '<b>output:</b> ', $Client->output;
 
