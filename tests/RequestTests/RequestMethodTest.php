@@ -2,7 +2,7 @@
 
 use \JsonRpc\Base\Rpc;
 
-class RequestMethodTest extends Request\Base
+class RequestMethodTest extends RequestTests\Base
 {
 
   public function testValidRequestMethod()

@@ -9,7 +9,7 @@ class BasicClient
   public $error = '';
 
 
-  public function send($method, $uri, $json, $headers = array())
+  public function send($method, $url, $json, $headers = array())
   {
 
     $header = 'Content-Type: application/json';
@@ -28,11 +28,11 @@ class BasicClient
     );
 
     $context = stream_context_create($opts);
-    $response = @file_get_contents($uri, false, $context);
+    $response = @file_get_contents($url, false, $context);
 
     if ($response === false)
     {
-      $this->error = 'Unable to connect to ' . $uri;
+      $this->error = 'Unable to connect to ' . $url;
       return;
     }
 

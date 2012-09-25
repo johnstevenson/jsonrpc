@@ -2,7 +2,7 @@
 
 use \JsonRpc\Base\Rpc;
 
-class ResponseSpecTest extends Response\Base
+class ResponseSpecTest extends ResponseTests\Base
 {
 
   public function testValidResponseSpec()

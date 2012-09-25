@@ -2,7 +2,7 @@
 
 use \JsonRpc\Base\Rpc;
 
-class RequestIdTest extends Request\Base
+class RequestIdTest extends RequestTests\Base
 {
 
   public function testValidRequestId()

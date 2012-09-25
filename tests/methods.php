@@ -23,25 +23,38 @@ class MethodsClass
 
   }
 
-  public function __call($method, $params)
+
+  public function ping($msg, $user)
   {
-
-    if ($method === 'ping')
-    {
-      return call_user_func_array(array($this, $method), $params);
-    }
-
-  }
-
-  protected function ping($msg, $user)
-  {
-    $res = new stdClass();
-    $res->reply = $msg . ' ' . $user->name . '(' . $user->id . ')';
+    $res = new \stdClass();
+    $res->reply = $msg . ' ' . $user->name . ' (' . $user->id . ')';
     $res->class = get_class();
     return $res;
   }
 
 }
+
+
+class MethodsClassCall
+{
+
+  public $error = null;
+
+
+  public function __call($method, $params)
+  {
+
+    if (method_exists('MethodsStatic', $method))
+    {
+      $res = call_user_func_array(array('MethodsStatic', $method), $params);
+      $this->error = MethodsStatic::$error;
+      return $res;
+    }
+
+  }
+
+}
+
 
 class MethodsStatic
 {
@@ -64,20 +77,10 @@ class MethodsStatic
 
   }
 
-  public static function __callStatic($method, $params)
+  public static function ping($msg, $user)
   {
-
-    if ($method === 'ping')
-    {
-      return call_user_func_array(array(get_class(), $method), $params);
-    }
-
-  }
-
-  protected static function ping($msg, $user)
-  {
-    $res = new stdClass();
-    $res->reply = $msg . ' ' . $user->name . '(' . $user->id . ')';
+    $res = new \stdClass();
+    $res->reply = $msg . ' ' . $user->name . ' (' . $user->id . ')';
     $res->class = get_class();
     return $res;
   }

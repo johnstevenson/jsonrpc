@@ -2,7 +2,7 @@
 
 use \JsonRpc\Base\Rpc;
 
-class RequestParamTest extends Request\Base
+class RequestParamTest extends RequestTests\Base
 {
 
   public function testValidRequestParamMissing()

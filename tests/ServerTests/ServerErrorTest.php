@@ -1,6 +1,6 @@
 <?php
 
-class ServerErrorTest extends Server\Base
+class ServerErrorTest extends ServerTests\Base
 {
 
   public function testParseErrorRequest()

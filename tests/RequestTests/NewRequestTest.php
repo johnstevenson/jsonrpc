@@ -1,6 +1,6 @@
 <?php
 
-class NewRequestTest extends Request\Base
+class NewRequestTest extends RequestTests\Base
 {
 
   public function testValidNewRequest()

@@ -10,15 +10,17 @@ JSON-RPC  is a protocol that allows servers to talk to each other using json-enc
 
 > A light weight remote procedure call protocol. It is designed to be simple!
 
-Full details at [jsonrpc.org][json-spec]. You may need to read this to get an overview of the json structures that are used, although the specific implementation details are abstracted away by this package. For example, to call a method on a remote server is as simple as:
+Full details at [jsonrpc.org][json-spec]. You may need to read this to get an overview of the json structures that are used, although the heavy lifting is abstracted away by this implmentation. For example, calling a method on a remote server is as simple as:
 
 ```php
 <?php
 
-$Client = new JsonRpc\Client($url);
-$Client->call('method', array($param1, $param2));
+$client = new JsonRpc\Client($url);
 
-// now do something with $Client->result
+if ($client->call('method', array($param1, $param2)))
+{
+  // now do something with $client->result
+}
 ```
 
 And at the server end:
@@ -29,10 +31,8 @@ And at the server end:
 // MethodsClass contains the exposed methods
 $methods = new MethodsClass();
 
-$Server = new JsonRpc\Server($methods);
-$Server->receive();
-
-// and that's it, the library handles everything
+$server = new JsonRpc\Server($methods);
+$server->receive();
 ```
 
 ##License

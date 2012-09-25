@@ -253,7 +253,16 @@ class Server
 
       }
 
-      $refMethod = $this->refClass->getMethod($method);
+      try
+      {
+        $refMethod = $this->refClass->getMethod($method);
+      }
+      catch (\Exception $e)
+      {
+        # we know we are callable, so the class must be implementing __call or __callStatic
+        $params = $this->getParams($params);
+        return true;
+      }
 
       $res = true;
 
@@ -298,10 +307,7 @@ class Server
       return $res;
 
     }
-    catch (\Exception $e)
-    {
-      $this->error = Rpc::ERR_METHOD;
-    }
+    catch (\Exception $e) {}
 
   }
 

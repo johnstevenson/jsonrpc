@@ -2,7 +2,7 @@
 
 use \JsonRpc\Base\Rpc;
 
-class ResponseGeneralTest extends Response\Base
+class ResponseGeneralTest extends ResponseTests\Base
 {
 
   public function testValidResponseResult()
@@ -69,7 +69,7 @@ class ResponseGeneralTest extends Response\Base
     $this->assertEquals($expects, $fault);
   }
 
-  public function testInvalidResponseIdWithStringEmpty()
+  public function testInvalidResponseResultWithIdStringEmpty()
   {
     $data = '{"jsonrpc": "2.0", "result": 6, "id": ""}';
     $expects = Rpc::getErrorMsg('id');
@@ -77,7 +77,7 @@ class ResponseGeneralTest extends Response\Base
     $this->assertEquals($expects, $fault);
   }
 
-  public function testInvalidResponseIdWithFloat()
+  public function testInvalidResponseResultWithIdFloat()
   {
     $data = '{"jsonrpc": "2.0", "result": 6, "id": 1.24}';
     $expects = Rpc::getErrorMsg('id');
@@ -85,7 +85,7 @@ class ResponseGeneralTest extends Response\Base
     $this->assertEquals($expects, $fault);
   }
 
-  public function testInvalidResponseIdWithTrue()
+  public function testInvalidResponseResultWithIdTrue()
   {
     $data = '{"jsonrpc": "2.0", "result": 6, "id": true}';
     $expects = Rpc::getErrorMsg('id');
@@ -93,7 +93,7 @@ class ResponseGeneralTest extends Response\Base
     $this->assertEquals($expects, $fault);
   }
 
-  public function testInvalidResponseIdWithFalse()
+  public function testInvalidResponseResultWithIdFalse()
   {
     $data = '{"jsonrpc": "2.0", "result": 6, "id": false}';
     $expects = Rpc::getErrorMsg('id');
@@ -102,7 +102,7 @@ class ResponseGeneralTest extends Response\Base
   }
 
 
-  public function testInvalidResponseIdWithArray()
+  public function testInvalidResponseResultWithIdArray()
   {
     $data = '{"jsonrpc": "2.0", "result": 6, "id": [1]}';
     $expects = Rpc::getErrorMsg('id');
@@ -110,7 +110,7 @@ class ResponseGeneralTest extends Response\Base
     $this->assertEquals($expects, $fault);
   }
 
-  public function testInvalidResponseWithObject()
+  public function testInvalidResponseResultWithIdObject()
   {
     $data = '{"jsonrpc": "2.0", "result": 6, "id": {"value": 1}}';
     $expects = Rpc::getErrorMsg('id');

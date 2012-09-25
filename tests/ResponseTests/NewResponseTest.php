@@ -2,10 +2,10 @@
 
 use \JsonRpc\Base\Rpc;
 
-class NewResponseTest extends Response\Base
+class NewResponseTest extends ResponseTests\Base
 {
 
-  public function testValidNewResponse()
+  public function testValidNewResponseResult()
   {
     $data = array('result' => 6, 'id' => 1);
     $expects = '{"jsonrpc": "2.0", "result": 6, "id": 1}';
@@ -52,18 +52,27 @@ class NewResponseTest extends Response\Base
 
     $this->assertEquals($expects, $json);
   }
-  /*
-  public function testInvalidNewResponseErrorServer()
+
+
+  public function testInvalidNewResponseErrorServer1()
   {
     $error = array('code' => -31999, 'message' => 'Server fault', 'data' => 'Please try later');
     $data = array('error' => $error, 'id' => 1);
 
-    $expects = '{"jsonrpc": "2.0", "error": {"code": -32603, "message": "Internal error"}, "id": 1}';
-    $json = $this->getResponseJson($data, $expects);
-
-    $this->assertEquals($expects, $json);
+    $expects = Rpc::getErrorMsg('error');
+    $fault = $this->getResponseFault($data);
+    $this->assertEquals($expects, $fault);
   }
-  */
+
+  public function testInvalidNewResponseErrorServer2()
+  {
+    $error = array('code' => -33000, 'message' => 'Server fault', 'data' => 'Please try later');
+    $data = array('error' => $error, 'id' => 1);
+
+    $expects = Rpc::getErrorMsg('error');
+    $fault = $this->getResponseFault($data);
+    $this->assertEquals($expects, $fault);
+  }
 
 
 }

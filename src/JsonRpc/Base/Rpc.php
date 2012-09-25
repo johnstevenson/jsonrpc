@@ -172,7 +172,7 @@ class Rpc
       $max = -32000;
       $min = -32099;
 
-      if ($code < $min && $code > $max)
+      if ($code < $min || $code > $max)
       {
         return;
       }

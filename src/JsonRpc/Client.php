@@ -16,7 +16,7 @@ class Client
   public $fault = '';
   public $output = '';
 
-  private $uri;
+  private $url;
   private $transport = null;
   private $id = 0;
   private $requests = array();
@@ -27,10 +27,10 @@ class Client
   const ERR_RPC_RESPONSE = 'BadRpcResponse';
 
 
-  public function __construct($uri, $transport = null)
+  public function __construct($url, $transport = null)
   {
 
-    $this->uri = $uri;
+    $this->url = $url;
     $this->transport = $transport;
 
     if (!$this->transport)
@@ -38,6 +38,12 @@ class Client
       $this->transport = new Transport\BasicClient();
     }
 
+  }
+
+
+  public function setTransport($transport)
+  {
+    $this->transport = $transport;
   }
 
 
@@ -86,7 +92,7 @@ class Client
       $data['params'] = $params;
     }
 
-    if ($notify)
+    if (!$notify)
     {
       $data['id'] = ++ $this->id;
     }
@@ -124,7 +130,7 @@ class Client
     try
     {
 
-      if ($res = $this->transport->send('POST', $this->uri, $data))
+      if ($res = $this->transport->send('POST', $this->url, $data))
       {
         $this->output = $this->transport->output;
         $res = $this->checkResult();

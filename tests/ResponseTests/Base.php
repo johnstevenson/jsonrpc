@@ -1,5 +1,5 @@
 <?php
-namespace Response;
+namespace ResponseTests;
 
 use \JsonRpc\Base\Rpc;
 use \JsonRpc\Base\Response;
@@ -19,7 +19,7 @@ class Base extends \PHPUnit_Framework_TestCase
 
   protected function getResponseFault($data)
   {
-    $struct = json_decode($data);
+    $struct = is_string($data) ? json_decode($data) : $data;
     $response = new Response($struct);
     $response->create($struct);
     return $response->fault;

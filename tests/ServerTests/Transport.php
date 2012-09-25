@@ -1,5 +1,5 @@
 <?php
-namespace Server;
+namespace ServerTests;
 
 class Transport
 {

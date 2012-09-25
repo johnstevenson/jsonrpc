@@ -1,5 +1,5 @@
 <?php
-namespace Request;
+namespace RequestTests;
 
 use \JsonRpc\Base\Rpc;
 use \JsonRpc\Base\Request;
