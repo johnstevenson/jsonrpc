@@ -35,5 +35,26 @@ class ServerErrorTest extends ServerTests\Base
     $this->assertEquals($expects, $json);
   }
 
+  public function testExceptionWithLogger()
+  {
+
+    $this->methods = 'MethodsException';
+    parent::setUp();
+
+    $logger = new ServerLogger();
+    $this->server->setLogger($logger);
+
+    $data = '{"jsonrpc": "2.0", "method": "divide", "params": [42, 0], "id": 1}';
+    $expects = '{"jsonrpc": "2.0", "error": {"code": -32603, "message": "Internal error"}, "id": 1}';
+    $json = $this->getResponseJson($data, $expects);
+    $this->assertEquals($expects, $json);
+
+    $expects = 500;
+    $this->assertEquals($expects, $logger->level);
+
+    $expects = 'divide';
+    $this->assertContains($expects, $logger->message);
+
+  }
 
 }

@@ -19,17 +19,13 @@ class Server
   private $refClass = null;
 
 
-  public function __construct($methodHandler, $otherHandlers = array())
+  public function __construct($methodHandler, $transport = null)
   {
 
     ini_set('display_errors', '0');
 
     $this->handler = $methodHandler;
-
-    $other = (array) $otherHandlers;
-
-    $this->transport = !empty($other['transport']) ? $other['transport'] : null;
-    $this->logger = !empty($other['logger']) ? $other['logger'] : null;
+    $this->transport = $transport;
 
     if (!$this->transport)
     {
@@ -388,7 +384,7 @@ class Server
 
         $params = array(
           500,
-          $msg
+          $message
         );
 
         $result = call_user_func_array($callback, $params);
@@ -396,13 +392,13 @@ class Server
       }
       else
       {
-        error_log($msg);
+        error_log($message);
       }
 
     }
     catch (\Exception $e)
     {
-      error_log($msg);
+      error_log($e->__toString());
     }
 
   }

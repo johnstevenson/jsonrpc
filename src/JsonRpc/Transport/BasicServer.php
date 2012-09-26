@@ -11,9 +11,9 @@ class BasicServer
   }
 
 
-  public function reply($json)
+  public function reply($data)
   {
-    echo $json;
+    echo $data;
     exit;
   }
 

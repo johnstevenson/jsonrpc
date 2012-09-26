@@ -59,6 +59,7 @@ class Client
   private $requests = array();
   private $multi = false;
   private $notifications = 0;
+  private $headers = array();
 
 
   const ERR_RPC_RESPONSE = 'Invalid Response';
@@ -75,6 +76,12 @@ class Client
       $this->transport = new Transport\BasicClient();
     }
 
+  }
+
+
+  public function setHeader($header)
+  {
+    $this->headers[] = $header;
   }
 
 
@@ -169,7 +176,7 @@ class Client
     try
     {
 
-      if ($res = $this->transport->send('POST', $this->url, $data))
+      if ($res = $this->transport->send('POST', $this->url, $data, $this->headers))
       {
         $this->output = $this->transport->output;
         $res = $this->checkResult();

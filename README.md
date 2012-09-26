@@ -69,6 +69,6 @@ Json-Rpc is licensed under the MIT License - see the `LICENSE` file for details
   [composer]: http://getcomposer.org
   [download]: https://github.com/johnstevenson/json-rpc/downloads
   [wiki]:https://github.com/johnstevenson/json-rpc/wiki/Home
-  [client]:https://github.com/johnstevenson/json-rpc/wiki/Client-Usage
-  [server]:https://github.com/johnstevenson/json-rpc/wiki/Server-Usage
-  [advanced]:https://github.com/johnstevenson/json-rpc/wiki/Advanced-Functionality
+  [client]:https://github.com/johnstevenson/json-rpc/wiki/Client-usage
+  [server]:https://github.com/johnstevenson/json-rpc/wiki/Server-usage
+  [advanced]:https://github.com/johnstevenson/json-rpc/wiki/Advanced-functionality

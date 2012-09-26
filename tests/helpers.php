@@ -146,6 +146,37 @@ class MethodsStatic
 
 }
 
+class MethodsException
+{
+
+  public static function divide($dividend, $divisor, $int = false)
+  {
+    throw new Exception(__FUNCTION__);
+  }
+
+  public static function ping($msg, $user)
+  {
+    throw new Exception(__FUNCTION__);
+  }
+
+}
+
+class ServerLogger
+{
+
+  public $level;
+  public $message;
+
+  public function addRecord($level, $message, array $context = array())
+  {
+    $this->level = $level;
+    $this->message = $message;
+  }
+
+}
+
+
+
 /**
 * Dummy functions for testing
 */
