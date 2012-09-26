@@ -2,7 +2,7 @@
 
   "name": "jsonrpc/jsonrpc",
   "description": "Client and Server JSON-RPC 2.0 implementation",
-  "keywords": ["json", "rpc", "messaging", "ipc"],
+  "keywords": ["json", "rpc", "json-rpc", "api", "xml-rpc"],
   "homepage": "http://github.com/johnstevenson/json-rpc",
   "type": "library",
   "license": "MIT",
