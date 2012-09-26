@@ -1,10 +1,22 @@
 {
 
   "name": "jsonrpc/jsonrpc",
+  "description": "Client and Server JSON-RPC 2.0 implementation",
+  "keywords": ["json", "rpc", "messaging", "ipc"],
+  "homepage": "http://github.com/johnstevenson/json-rpc",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "John Stevenson",
+      "email": "john-stevenson@blueyonder.co.uk"
+    }
+  ],
 
   "require": {
     "php": ">=5.3.0"
   },
+
   "autoload": {
     "psr-0": {"JsonRpc": "src/"}
   }
