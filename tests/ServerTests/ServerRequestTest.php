@@ -141,6 +141,7 @@ class ServerRequestTest extends ServerTests\Base
 
   /**
   * Checks that missing params to __call are are reported as an internal error
+  * Note this is actually set in the __call method to avoid PHPUnit exceptions being reported
   *
   */
   public function testClassMissingParamsCall()
@@ -151,6 +152,7 @@ class ServerRequestTest extends ServerTests\Base
     $data = '{"jsonrpc": "2.0", "method": "divide", "params": [42], "id": 1}';
     $expects = '{"jsonrpc": "2.0", "error": {"code": -32603, "message": "Internal error"}, "id" :1}';
     $json = $this->getResponseJson($data, $expects);
+
     $this->assertEquals($expects, $json);
   }
 
@@ -171,7 +173,7 @@ class ServerRequestTest extends ServerTests\Base
 
 
   /**
-  * Checks that a notify with missing params to __call, which will invoke an
+  * Checks that a notify with missing params to __call, which will invoke a caugth
   * exception, returns nothing.
   *
   */
@@ -179,11 +181,11 @@ class ServerRequestTest extends ServerTests\Base
   {
     $this->methods = new MethodsClassCall();
     parent::setUp();
-
     $data = '{"jsonrpc": "2.0", "method": "divide", "params": [42]}';
     $expects = '';
     $json = $this->getResponseJson($data, $expects);
     $this->assertEquals($expects, $json);
+
   }
 
 

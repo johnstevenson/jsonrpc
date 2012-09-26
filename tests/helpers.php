@@ -105,9 +105,17 @@ class MethodsClassCall
 
     if (method_exists('MethodsStatic', $method))
     {
-      $res = call_user_func_array(array('MethodsStatic', $method), $params);
-      $this->error = MethodsStatic::$error;
-      return $res;
+
+      try
+      {
+        $res = call_user_func_array(array('MethodsStatic', $method), $params);
+        $this->error = MethodsStatic::$error;
+        return $res;
+      }
+      catch (Exception $e)
+      {
+        $this->error = -32603;
+      }
     }
 
   }
