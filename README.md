@@ -4,10 +4,17 @@
 
 A PHP implementation for JSON-RPC (v2). Contains client and server libraries to handle requests including **notification** and **batch**.
 
-About
------
+## Contents
+* [About](#About)
+* [Installation](#Installation)
+* [Usage](#Usage)
+* [Example](#Example)
+* [License](#License)
 
-JSON-RPC  is a protocol that allows servers to talk to each other using json-encoded structures. It is described in its specification as:
+<a name="About"></a>
+## About
+
+JSON-RPC is a protocol that allows servers to talk to each other using json-encoded structures. It is described in its specification as:
 
 > A light weight remote procedure call protocol. It is designed to be simple!
 
@@ -31,6 +38,8 @@ $methods = new MethodsClass();
 $server = new JsonRpc\Server($methods);
 $server->receive();
 ```
+
+<a name="Installation"></a>
 ## Installation
 The easiest way is [through composer][composer]. Just create a `composer.json` file and run `php composer.phar install` to install it:
 
@@ -45,21 +54,25 @@ The easiest way is [through composer][composer]. Just create a `composer.json` f
 
 Alternatively, you can [download][download] and extract it, or clone this repo.
 
+<a name="Usage"></a>
 ## Usage
-If you downloaded the library through [composer][composer] then you must add
+If you downloaded the library through [composer][composer] then you must add the following somewhere in your bootstrap code:
 
 ```php
 <?php
  require 'vendor/autoload.php';
 ```
-somewhere in your bootstrap code, otherwise you must point a PSR-0 autoloader to the `src` directory so that the classes are automatically included. If you just want to have a quick play, point your browser to `example/client.php` and everything will run automatically.
+Otherwise you must point a PSR-0 autoloader to the `src` directory. Full usage [documentation][wiki] can be found in the Wiki:
 
-Full usage documentation can be found in the [wiki][wiki].
+* [Client usage][client]
+* [Server usage][server]
+* [Advanced functionality][advanced]
 
-* **[Client usage][client]**
-* **[Server usage][server]**
-* **[Advanced functionality][advanced]**
+<a name="Example"></a>
+## Example
+The quickest way to get the library up and running locally is to point your browser to `example/client.php` and everything will load automatically. You can then experiment with the code as you read the documentation.
 
+<a name="License"></a>
 ## License
 
 Json-Rpc is licensed under the MIT License - see the `LICENSE` file for details
