@@ -52,7 +52,7 @@ The easiest way is [through composer][composer]. Just create a `composer.json` f
 }
 ```
 
-Alternatively, you can [download][download] and extract it, or clone this repo.
+Alternatively, you can [download][download] and extract it, or clone this repo. If you just want to try it, see [Example](#Example).
 
 <a name="Usage"></a>
 ## Usage
@@ -80,8 +80,8 @@ Json-Rpc is licensed under the MIT License - see the `LICENSE` file for details
 
   [json-spec]: http://www.jsonrpc.org/
   [composer]: http://getcomposer.org
-  [download]: https://github.com/johnstevenson/json-rpc/downloads
-  [wiki]:https://github.com/johnstevenson/json-rpc/wiki/Home
-  [client]:https://github.com/johnstevenson/json-rpc/wiki/Client-usage
-  [server]:https://github.com/johnstevenson/json-rpc/wiki/Server-usage
-  [advanced]:https://github.com/johnstevenson/json-rpc/wiki/Advanced-functionality
+  [download]: https://github.com/johnstevenson/jsonrpc/downloads
+  [wiki]:https://github.com/johnstevenson/jsonrpc/wiki/Home
+  [client]:https://github.com/johnstevenson/jsonrpc/wiki/Client-usage
+  [server]:https://github.com/johnstevenson/jsonrpc/wiki/Server-usage
+  [advanced]:https://github.com/johnstevenson/jsonrpc/wiki/Advanced-functionality
