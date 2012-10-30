@@ -79,9 +79,24 @@ class Client
   }
 
 
-  public function setHeader($header)
+  public function addHeaders($value)
   {
-    $this->headers[] = $header;
+
+    if (is_array($value))
+    {
+      $this->headers = array_merge($this->headers, $value);
+    }
+    elseif (is_string($value))
+    {
+      $this->headers[] = $value;
+    }
+
+  }
+
+
+  public function clearHeaders()
+  {
+    $this->headers = array();
   }
 
 
@@ -383,13 +398,6 @@ class Client
     }
 
     return ($a->id < $b->id) ? -1 : 1;
-
-  }
-
-
-  private function checkIds()
-  {
-
 
   }
 
