@@ -415,7 +415,7 @@ class Client
     {
       $code = $error->code;
       $message = $error->message;
-      $data = $error->data;
+      $data = isset($error->data) ? $error->data : null;
     }
 
     $data = $data ? ': ' . $data : '';
