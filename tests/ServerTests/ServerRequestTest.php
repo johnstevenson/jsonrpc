@@ -25,11 +25,26 @@ class ServerRequestTest extends ServerTests\Base
 
 
   /**
+  * Calls divide with named params.
+  *
+  */
+  public function testClassDivideNamed()
+  {
+    parent::setUp();
+
+    $data = '{"jsonrpc": "2.0", "method": "divide", "params": {"dividend": 20, "divisor": 4}, "id": 1}';
+    $expects = '{"jsonrpc": "2.0", "result": 5, "id": 1}';
+    $json = $this->getResponseJson($data, $expects);
+    $this->assertEquals($expects, $json);
+  }
+
+
+  /**
   * Calls divide with named params. Checks that the out of order
   * params are given to the method in the correct order
   *
   */
-  public function testClassDivideNamed()
+  public function testClassDivideNamedWrongOrder()
   {
     parent::setUp();
 
@@ -38,6 +53,7 @@ class ServerRequestTest extends ServerTests\Base
     $json = $this->getResponseJson($data, $expects);
     $this->assertEquals($expects, $json);
   }
+
 
 
   /**
@@ -111,14 +127,14 @@ class ServerRequestTest extends ServerTests\Base
 
   /**
   * Checks that using __call does not impact named param checks
-  * calling setObjectsAsArrays(true)
+  * calling setObjectsAsArrays()
   *
   */
   public function testClassCallNamedAssoc()
   {
     $this->methods = new MethodsClassCall();
     parent::setUp();
-    $this->server->setObjectsAsArrays(true);
+    $this->server->setObjectsAsArrays();
 
     $data = '{"jsonrpc": "2.0", "method": "ping",
       "params": {"msg": "Hello", "user": {"name": "Fred", "id": 257}},

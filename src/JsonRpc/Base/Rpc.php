@@ -89,7 +89,7 @@ class Rpc
           break;
 
         case 'params':
-          $res = $this->checkParams($value);
+          $res = is_array($value) || is_object($value);
           break;
 
         case 'id':
@@ -180,21 +180,6 @@ class Rpc
     }
 
     return is_int($code) && $code && is_string($message);
-
-  }
-
-
-  private function checkParams($params)
-  {
-
-    if (is_array($params))
-    {
-      return array_values($params) === $params;
-    }
-    else
-    {
-      return is_object($params);
-    }
 
   }
 

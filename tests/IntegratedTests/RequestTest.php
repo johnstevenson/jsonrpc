@@ -27,6 +27,19 @@ class RequestTest extends IntegratedTests\Base
     $this->assertEquals($expects, $this->client->result);
   }
 
+  public function testDivideNamedArray()
+  {
+    $method = 'divide';
+    $params = array(
+      'divisor' => 12,
+      'dividend' => 96,
+    );
+
+    $expects = 8;
+    $this->client->call($method, $params);
+    $this->assertEquals($expects, $this->client->result);
+  }
+
   public function testDivideError()
   {
     $method = 'divide';
@@ -39,7 +52,7 @@ class RequestTest extends IntegratedTests\Base
     $this->assertEquals($error, $this->client->error);
   }
 
-  public function testPing()
+  public function testPingNamed()
   {
     $method = 'ping';
 
@@ -51,10 +64,33 @@ class RequestTest extends IntegratedTests\Base
       'msg' => 'Hello',
     );
 
-    $this->client->call($method, (object) $params);
+    $params = (object) $params;
+
+    $this->client->call($method, $params);
     $result = $this->client->result;
     $this->assertEquals('Hello Fred (257)', $result->reply);
     $this->assertEquals(get_class($this->transport->serverMethods), $result->class);
+    $this->assertEquals('object', $result->type);
+  }
+
+
+  public function testPingNamedArray()
+  {
+    $method = 'ping';
+
+    $params = array(
+      'user' => array(
+        'id' => 257,
+        'name' => 'Fred',
+      ),
+      'msg' => 'Hello',
+    );
+
+    $this->client->call($method, $params);
+    $result = $this->client->result;
+    $this->assertEquals('Hello Fred (257)', $result->reply);
+    $this->assertEquals(get_class($this->transport->serverMethods), $result->class);
+    $this->assertEquals('object', $result->type);
   }
 
   public function testNotify()

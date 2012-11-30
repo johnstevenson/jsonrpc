@@ -68,9 +68,9 @@ class Server
   }
 
 
-  public function setObjectsAsArrays($value)
+  public function setObjectsAsArrays()
   {
-    $this->assoc = (bool) $value;
+    $this->assoc = true;
   }
 
 
