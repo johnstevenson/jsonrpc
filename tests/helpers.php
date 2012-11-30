@@ -85,10 +85,16 @@ class MethodsClass
 
   public function ping($msg, $user)
   {
+
     $res = new \stdClass();
-    $res->reply = $msg . ' ' . $user->name . ' (' . $user->id . ')';
+
+    $details = is_array($user) ? $user : (array) $user;
+    $res->reply = $msg . ' ' . $details['name'] . ' (' . $details['id'] . ')';
     $res->class = get_class();
+    $res->type = gettype($user);
+
     return $res;
+
   }
 
 }
@@ -146,10 +152,16 @@ class MethodsStatic
 
   public static function ping($msg, $user)
   {
+
     $res = new \stdClass();
-    $res->reply = $msg . ' ' . $user->name . ' (' . $user->id . ')';
+
+    $details = is_array($user) ? $user : (array) $user;
+    $res->reply = $msg . ' ' . $details['name'] . ' (' . $details['id'] . ')';
     $res->class = get_class();
+    $res->type = gettype($user);
+
     return $res;
+
   }
 
 }

@@ -102,7 +102,29 @@ class ServerRequestTest extends ServerTests\Base
       "params": {"msg": "Hello", "user": {"name": "Fred", "id": 257}},
       "id": 1}';
     $expects = '{"jsonrpc": "2.0",
-      "result": {"reply": "Hello Fred (257)", "class": "MethodsStatic"},
+      "result": {"reply": "Hello Fred (257)", "class": "MethodsStatic", "type": "object"},
+      "id": 1}';
+    $json = $this->getResponseJson($data, $expects);
+    $this->assertEquals($expects, $json);
+  }
+
+
+  /**
+  * Checks that using __call does not impact named param checks
+  * calling setObjectsAsArrays(true)
+  *
+  */
+  public function testClassCallNamedAssoc()
+  {
+    $this->methods = new MethodsClassCall();
+    parent::setUp();
+    $this->server->setObjectsAsArrays(true);
+
+    $data = '{"jsonrpc": "2.0", "method": "ping",
+      "params": {"msg": "Hello", "user": {"name": "Fred", "id": 257}},
+      "id": 1}';
+    $expects = '{"jsonrpc": "2.0",
+      "result": {"reply": "Hello Fred (257)", "class": "MethodsStatic", "type": "array"},
       "id": 1}';
     $json = $this->getResponseJson($data, $expects);
     $this->assertEquals($expects, $json);

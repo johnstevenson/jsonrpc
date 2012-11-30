@@ -12,6 +12,7 @@ class Server
   private $handler;
   private $transport = null;
   private $logger = null;
+  private $assoc = false;
   private $requests = array();
   private $responses = array();
   private $error = null;
@@ -64,6 +65,12 @@ class Server
   public function setLogger($logger)
   {
     $this->logger = $logger;
+  }
+
+
+  public function setObjectsAsArrays($value)
+  {
+    $this->assoc = (bool) $value;
   }
 
 
@@ -159,6 +166,11 @@ class Server
       $this->error = Rpc::ERR_PARAMS;
 
       return;
+    }
+
+    if ($this->assoc)
+    {
+      $this->castObjectsToArrays($params);
     }
 
     try
@@ -325,6 +337,23 @@ class Server
     return $params;
 
   }
+
+
+  private function castObjectsToArrays(&$params)
+  {
+
+    foreach ($params as &$param)
+    {
+
+      if (is_object($param))
+      {
+        $param = (array) $param;
+      }
+
+    }
+
+  }
+
 
   private function getHandlerError()
   {
